@@ -1,6 +1,8 @@
 import { MongoClient } from "mongodb";
 import * as dotenv from "dotenv";
-import express from "express"
+import express from "express";
+import cors from "cors";
+
 dotenv.config()
 // Replace the uri string with your connection string.
 const db_username = process.env.MONGO_DB_USERNAME;
@@ -10,7 +12,8 @@ const uri =
   `mongodb+srv://${db_username}:${db_password}@${db_url}?retryWrites=true&w=majority`;
 const client = new MongoClient(uri);
 const app = express();
-app.set('port', process.env.PORT || 3000);
+app.use(cors())
+app.set('port', process.env.PORT || 3004);
 app.get('/findOne', async (req, res) => {
 
 
@@ -42,9 +45,9 @@ app.get('/findOne', async (req, res) => {
     });
   } catch (error) {
     console.log(error)
-  } finally {
+  } /* finally {
     await client.close();
-  }
+  } */
 });
 app.use((req, res) => {
   res.type('text/plain');
