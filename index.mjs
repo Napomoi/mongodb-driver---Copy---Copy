@@ -13,42 +13,42 @@ const uri =
 const client = new MongoClient(uri);
 const app = express();
 app.use(cors())
-app.set('port', process.env.PORT || 3004);
-app.get('/findOne', async (req, res) => {
+app.use(express.json());
+app.set('port', process.env.PORT || 3000);
 
+app.post('/findOne', async (req, res) => {
+  console.log("beginnign of post request")
+
+  // dataSourceName = req.body.dataSource
+  const databaseName = req.body.database
+  const collectionName = req.body.collection
+  const filterName = req.body.filter
+  const projectionName = req.body.projection
 
   try {
-    const database = client.db('sample_airbnb');
-    const listings = database.collection('listingsAndReviews');
-
-    const query = {};
-    if (req.query.property_type) {
-      query.property_type = req.query.property_type;
+    const database = client.db(databaseName);
+    const listings = database.collection(collectionName);
+    const query = filterName;
+    const projection = projectionName;
+    
+    const options = {
+      projection: projection
     }
-    if (req.query.bedrooms) {
-      query.bedrooms = parseInt(req.query.bedrooms);
-    }
-    if (req.query.beds) {
-      query.beds = parseInt(req.query.beds);
-    }
-    const listingsAndReviews = await listings.findOne(query);
+    const genericResponse = await listings.findOne(query, options);
+    // console.log(genericResponse)
     res.type('json');
     res.status(200);
-    res.json({
-      _id: listingsAndReviews._id,
-      listing_url: listingsAndReviews.listing_url,
-      name: listingsAndReviews.name,
-      summary: listingsAndReviews.summary,
-      property_type: listingsAndReviews.property_type,
-      bedrooms: listingsAndReviews.bedrooms,
-      beds: listingsAndReviews.beds
-    });
+    res.json(
+      genericResponse
+    );
   } catch (error) {
     console.log(error)
   } /* finally {
     await client.close();
   } */
 });
+
+
 app.use((req, res) => {
   res.type('text/plain');
   res.status(404);
